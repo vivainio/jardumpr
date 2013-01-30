@@ -1,4 +1,8 @@
-jardumpr
-========
+# Jardumpr 
 
-Dump jar content (either symbols declared and referenced, or jasmin-style bytecode assembly)
+## Install instructions
+
+- Have java configured
+
+- Run "python buildit.py"
+
