@@ -1,0 +1,155 @@
+30a31
+> 
+33a35
+> import java.util.HashSet;
+107c109,114
+<     /**
+---
+> 
+> 	protected HashSet<String> dependencies;
+> 	protected HashSet<String> provides;
+> 	protected HashSet<String> descriptors;
+> 	
+> 	/**
+115a123
+> 	private String className;
+135,137d142
+<         if (args.length < 1 || args.length > 2) {
+<             ok = false;
+<         }
+141,143d145
+<             if (args.length != 2) {
+<                 ok = false;
+<             }
+153,157c155,165
+<         if (args[i].endsWith(".class") || args[i].indexOf('\\') > -1
+<                 || args[i].indexOf('/') > -1) {
+<             cr = new ClassReader(new FileInputStream(args[i]));
+<         } else {
+<             cr = new ClassReader(args[i]);
+---
+>         for (;i < args.length;++i) {
+> 	        if (args[i].endsWith(".class") || args[i].indexOf('\\') > -1
+> 	                || args[i].indexOf('/') > -1) {
+> 	            cr = new ClassReader(new FileInputStream(args[i]));
+> 	        } else {
+> 	            cr = new ClassReader(args[i]);
+> 	        }
+> 	        cr.accept(new JasminifierClassAdapter(
+> 	                new PrintWriter(System.out, true), null), flags
+> 	                | ClassReader.EXPAND_FRAMES);
+> 
+159,161d166
+<         cr.accept(new JasminifierClassAdapter(
+<                 new PrintWriter(System.out, true), null), flags
+<                 | ClassReader.EXPAND_FRAMES);
+183a189,192
+>         dependencies = new HashSet<String>();
+>         provides = new HashSet<String>();
+>         descriptors = new HashSet<String>();
+>         
+197c206,207
+<         pw.println(cn.name);
+---
+>         setClassName(cn.name);
+>         pw.println(cn.name);        
+204c214
+<             println(".implements ", cn.interfaces.get(i));
+---
+>             println(".implements ", (String) cn.interfaces.get(i));
+228c238
+<             InnerClassNode in = cn.innerClasses.get(i);
+---
+>             InnerClassNode in = (InnerClassNode) cn.innerClasses.get(i);
+247c257
+<             FieldNode fn = cn.fields.get(i);
+---
+>             FieldNode fn = (FieldNode) cn.fields.get(i);
+263a274
+>             addDescriptor(fn.desc);
+296c307
+<             MethodNode mn = cn.methods.get(i);
+---
+>             MethodNode mn = (MethodNode) cn.methods.get(i);
+300a312,313
+>             addProvide(mn.name);
+>             
+325c338
+<                 println(".throws ", mn.exceptions.get(j));
+---
+>                 println(".throws ", (String) mn.exceptions.get(j));
+333c346
+<                     TryCatchBlockNode tcb = mn.tryCatchBlocks.get(j);
+---
+>                     TryCatchBlockNode tcb = (TryCatchBlockNode) mn.tryCatchBlocks.get(j);
+435a449,450
+>                             addDep(owner,  name);
+>                             addDescriptor(desc);
+451a467,468
+>                             addDescriptor(desc);
+>                             addDep(owner, name);
+529a547
+>                             addDescriptor(desc);
+540c558
+<                     LocalVariableNode lv = mn.localVariables.get(j);
+---
+>                     LocalVariableNode lv = (LocalVariableNode) mn.localVariables.get(j);
+546a565
+>                     addDescriptor(lv.desc);
+561a581
+>             dumpState();
+566c586,631
+<     protected void println(final String directive, final String arg) {
+---
+>     private void setClassName(String name) {
+> 		// TODO Auto-generated method stub
+>     	className = name;
+> 		
+> 	}
+> 
+> 	private void addDescriptor(String desc) {
+> 		// TODO Auto-generated method stub
+>     	descriptors.add(desc);
+> 		
+> 	}
+> 
+> 	private void addProvide(String name) {
+> 		// TODO Auto-generated method stub
+>     	provides.add(name);
+> 		
+> 	}
+> 	
+> 	private void dumpState() {
+> 		for (String el : dependencies) {
+> 			pw.println(".dep " + el);
+> 			
+> 		}
+> 		dependencies.clear();
+> 		
+> 		for (String el : provides) {
+> 			pw.println(".provide "+ className +";" + el);
+> 			
+> 		}
+> 		
+> 		for (String el : descriptors) { 
+> 			pw.println(".desc " + el);
+> 			
+> 		}
+> 		dependencies.clear();
+> 		provides.clear();
+> 		descriptors.clear();
+> 		
+> 	}
+> 	
+> 
+> 	private void addDep(String owner, String name) {
+> 		dependencies.add(owner + ";" + name);
+> 	}
+> 	
+> 	protected void println(final String directive, final String arg) {
+573a639,640
+>     	    	
+>     	
+620a688,689
+>         
+>         
