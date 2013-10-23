@@ -1,4 +1,6 @@
 import unittest, os
+import glob
+
 
 def c(s):
     return os.popen(s).read()
@@ -18,19 +20,31 @@ class TestJardumpr(unittest.TestCase):
         self.assert_(len(out) > 10000)
 
     def test_compare(self):
-        out = c(" python jardumpr.py --old=test/Original/LCDUITest.jar --new=test/MinorChange/LCDUITest.jar")
+        out = c("python jardumpr.py --old=test/Original/LCDUITest.jar --new=test/MinorChange/LCDUITest.jar")
         #print out
         [self.assert_(s in out) for s in ['changes', 'linecount', 'per_1k']]
         #self.assert_(len(out) > 10000)
 
     def test_compare_same(self):
-        out = c(" python jardumpr.py --old=test/Original/LCDUITest.jar --new=test/Original/LCDUITest.jar")
+        out = c("python jardumpr.py --old=test/Original/LCDUITest.jar --new=test/Original/LCDUITest.jar")
         print out
 
     def test_sshout(self):
-        out = c(" python jardumpr.py --old=test/StatusShoutBins/0.9/StatusShout.jar --new=test/StatusShoutBins/1.0/StatusShout.jar")
+        out = c("python jardumpr.py --old=test/StatusShoutBins/0.9/StatusShout.jar --new=test/StatusShoutBins/1.0/StatusShout.jar")
         print out
-        out = c(" python jardumpr.py --old=test/StatusShoutBins/1.0/StatusShout.jar --new=test/StatusShoutBins/1.1/StatusShout.jar")
+        out = c("python jardumpr.py --old=test/StatusShoutBins/1.0/StatusShout.jar --new=test/StatusShoutBins/1.1/StatusShout.jar")
         print out
+    def test_corrupt(self):
+        for f in glob.glob("test/Corrupt/*"):
+            out = c("python jardumpr.py %s" % f)
+
+    def test_compare_corrupt(self):
+        for f in glob.glob("test/Corrupt/*"):
+            out = c("python jardumpr.py --old=test/Original/LCDUITest.jar --new=%s" % f)
+            print out
+            out = c("python jardumpr.py --old=%s --new=test/MinorChange/LCDUITest.jar" % f)
+            print out
+
+
 if __name__ == "__main__":
     unittest.main()

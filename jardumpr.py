@@ -97,9 +97,18 @@ def compare_dumps(da, db):
 def compare(a, b):
     args.raw = True
     af = tempfile.NamedTemporaryFile()
-    dump_jar_data(a, af)
+    try:
+        dump_jar_data(a, af)
+    except Exception,e:
+        print "corrupt: old, %s, %s" % (a, e.message)
+        return
     bf = tempfile.NamedTemporaryFile()
-    dump_jar_data(b, bf)
+
+    try:
+        dump_jar_data(b, bf)
+    except Exception,e:
+        print "corrupt: new, %s, %s" % (b, e.message)
+        return
 
     #print af.name
     compare_dumps(af.name, bf.name)
