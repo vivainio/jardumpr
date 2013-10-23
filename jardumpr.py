@@ -2,6 +2,7 @@
 import os, tempfile, zipfile, re, shutil, argparse, sys
 import mglob
 import subprocess
+import tempfile
 
 BINROOT = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
 
@@ -74,14 +75,33 @@ def parseargs():
     args = parser.parse_args()
     return args
 
+def compare_dumps(da, db):
+    os.system("diff " + da + " " + db + " | diffstat -m -f0")
+
+def compare(a, b):
+    args.raw = True
+    af = tempfile.NamedTemporaryFile()
+    dump_jar_data(a, af)
+    bf = tempfile.NamedTemporaryFile()
+    dump_jar_data(b, bf)
+
+    #print af.name
+    compare_dumps(af.name, bf.name)
+
 
 def main():
     global args
 
     args = parseargs()
     if args.test:
-        print "test"
-        dump_jar_data("test/Original/LCDUITest.jar", sys.stdout)
+        print "Minor change"
+        compare("test/Original/LCDUITest.jar", "test/MinorChange/LCDUITest.jar")
+        print "bigger change"
+        compare("test/Original/LCDUITest.jar", "test/Change/LCDUITest.jar")
+        return
+
+    if args.old:
+        compare(args.old, args.new)
         return
 
     jars = args.jarfiles
