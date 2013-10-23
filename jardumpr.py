@@ -33,6 +33,9 @@ def decompile(filelist):
 
 tempdirs = []
 
+def c(s):
+    return os.popen(s).read()
+
 
 def extract_jar(jarf):
     zf = zipfile.ZipFile(jarf, "r")
@@ -75,8 +78,21 @@ def parseargs():
     args = parser.parse_args()
     return args
 
+def parse_diffstat(s):
+    if not s.strip():
+        return 0
+    return int(s.split("|")[1].split()[0])
+
+
+
 def compare_dumps(da, db):
-    os.system("diff " + da + " " + db + " | diffstat -m -f0")
+    out = c("diff " + da + " " + db + " | diffstat -m -f0 -q")
+    r = parse_diffstat(out)
+    #print out
+    lc = open(da).read().count("\n")
+    print "changes:",r
+    print "linecount:",lc
+    print "per_1k:",(r/float(lc)) * 1000
 
 def compare(a, b):
     args.raw = True
@@ -89,8 +105,10 @@ def compare(a, b):
     compare_dumps(af.name, bf.name)
 
 
+
 def main():
     global args
+
 
     args = parseargs()
     if args.test:
@@ -105,6 +123,7 @@ def main():
         return
 
     jars = args.jarfiles
+
     #print "process",jars
     for j in jars:
         dump_jar_data(j, sys.stdout)
