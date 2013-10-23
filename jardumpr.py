@@ -18,7 +18,12 @@ def decompile(filelist):
     os.environ["CLASSPATH"] = ":".join(classpath)
 
     #out = os.popen("java JasminifierClassAdapter " +paths).read()
-    out = subprocess.check_output(["java", "JasminifierClassAdapter"] + filelist)
+    try:
+        out = subprocess.check_output(["java", "JasminifierClassAdapter"] + filelist)
+    except subprocess.CalledProcessError:
+        print "corrupt: " + repr(filelist)
+        return
+
     provides = re.findall("^.provide (.*)$", out, re.MULTILINE)
     depends = re.findall("^.dep (.*)$", out, re.MULTILINE)
     depclasses = set(el.split(';', 1)[0] for el in depends)
@@ -38,7 +43,11 @@ def c(s):
 
 
 def extract_jar(jarf):
-    zf = zipfile.ZipFile(jarf, "r")
+    try:
+        zf = zipfile.ZipFile(jarf, "r")
+    except zipfile.BadZipfile:
+        print "corrupt: bad zip,",jarf
+        raise
     td = tempfile.mkdtemp()
     tempdirs.append(td)
     zf.extractall(td)
@@ -47,12 +56,16 @@ def extract_jar(jarf):
 
 def dump_jar_data(jarf, outf):
     #decompile(['data/Local.class'])
-    outf.write("# file: " + jarf + "\n")
+    # outf.write("# file: " + jarf + "\n")
     if jarf.lower().endswith("jar"):
         files = extract_jar(jarf)
         d = decompile(files)
     else:
         d = decompile([jarf])
+
+    if not d:
+        # error, don't write anything
+        return
 
     if args.raw:
         outf.write(d['raw'])
@@ -86,10 +99,16 @@ def parse_diffstat(s):
 
 
 def compare_dumps(da, db):
+    #out = c("diff " + da + " " + db)
+    #print out
     out = c("diff " + da + " " + db + " | diffstat -m -f0 -q")
     r = parse_diffstat(out)
     #print out
     lc = open(da).read().count("\n")
+    if not lc:
+        print "corrupt: no output"
+        return
+
     print "changes:",r
     print "linecount:",lc
     print "per_1k:",(r/float(lc)) * 1000

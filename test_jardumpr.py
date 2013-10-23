@@ -1,9 +1,17 @@
 import unittest, os
 import glob
+from subprocess import Popen, PIPE
 
+def c(s, noerr = False):
+    #print s
 
-def c(s):
-    return os.popen(s).read()
+    p = Popen(s, shell=True, stdout=PIPE, stderr=PIPE)
+    o,e = p.stdout.read(), p.stderr.read()
+    if e and not noerr:
+        print "// stderr"
+        print e
+        print "//"
+    return o
 
 class TestJardumpr(unittest.TestCase):
     def setUp(self, *args, **kwargs):
@@ -27,23 +35,36 @@ class TestJardumpr(unittest.TestCase):
 
     def test_compare_same(self):
         out = c("python jardumpr.py --old=test/Original/LCDUITest.jar --new=test/Original/LCDUITest.jar")
-        print out
+        self.assert_('changes: 0' in out)
+
+    def test_compare_rename(self):
+        out = c("python jardumpr.py --old=test/Original/LCDUITest.jar --new=test/Original/LCDUITest_newname.jar")
+        self.assert_('changes: 0' in out)
+
+        #print out
+
 
     def test_sshout(self):
         out = c("python jardumpr.py --old=test/StatusShoutBins/0.9/StatusShout.jar --new=test/StatusShoutBins/1.0/StatusShout.jar")
-        print out
+        #print out
         out = c("python jardumpr.py --old=test/StatusShoutBins/1.0/StatusShout.jar --new=test/StatusShoutBins/1.1/StatusShout.jar")
-        print out
+        #print out
     def test_corrupt(self):
         for f in glob.glob("test/Corrupt/*"):
-            out = c("python jardumpr.py %s" % f)
+            out = c("python jardumpr.py %s" % f, noerr=True)
+            if not 'corrupt:' in out:
+                print "Wanted corrupt, got",out
+                self.assert_('corrupt:' in out)
 
     def test_compare_corrupt(self):
         for f in glob.glob("test/Corrupt/*"):
-            out = c("python jardumpr.py --old=test/Original/LCDUITest.jar --new=%s" % f)
-            print out
-            out = c("python jardumpr.py --old=%s --new=test/MinorChange/LCDUITest.jar" % f)
-            print out
+
+
+            out = c("python jardumpr.py --old=test/Original/LCDUITest.jar --new=%s" % f, noerr=True)
+            if not 'corrupt:' in out:
+                print "Problematic output:",out
+            self.assert_('corrupt:' in out)
+            out = c("python jardumpr.py --old=%s --new=test/MinorChange/LCDUITest.jar" % f, noerr=True)
 
 
 if __name__ == "__main__":
