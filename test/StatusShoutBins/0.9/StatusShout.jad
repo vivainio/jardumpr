@@ -1,0 +1,8 @@
+MIDlet-1: StatusShout,/status-shout-icon-50.png,com.nokia.example.statusshout.StatusShout
+MIDlet-Jar-Size: 332433
+MIDlet-Jar-URL: StatusShout.jar
+MIDlet-Name: Status Shout!
+MIDlet-Vendor: Nokia
+MIDlet-Version: 0.9.0
+MicroEdition-Configuration: CLDC-1.0
+MicroEdition-Profile: MIDP-2.1
