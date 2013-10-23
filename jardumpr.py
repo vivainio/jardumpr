@@ -70,10 +70,10 @@ def parseargs():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("jarfiles", metavar="jarfile", nargs="*")
-    parser.add_argument("--raw", action="store_true")
-    parser.add_argument("--old", type=str)
-    parser.add_argument("--new", type=str)
-    parser.add_argument("--test", action="store_true")
+    parser.add_argument("--raw", action="store_true", help='dump Jasmin style assembly')
+    parser.add_argument("--old", type=str, help="old .jar file for comparison")
+    parser.add_argument("--new", type=str, help="new .jar file for comparison")
+    parser.add_argument("--test", action="store_true", help="quick sanity test")
 
     args = parser.parse_args()
     return args
