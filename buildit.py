@@ -1,8 +1,10 @@
 import os
 
+
 def c(s):
-	print ">",s
-	os.system(s)
+    print ">", s
+    os.system(s)
+
 
 os.environ["CLASSPATH"] = "lib/*"
 c("javac -d bin/ src/*.java")
