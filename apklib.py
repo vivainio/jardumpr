@@ -18,7 +18,7 @@ def cat(outf, filenames):
     with open(outf, 'w') as outfile:
         for fname in filenames:
             with open(fname) as infile:
-                outfile.write(os.path.basename(fname))
+                outfile.write("# " + os.path.basename(fname) + "\n\n")
                 outfile.write(infile.read())
 
 def find(pth, endswith):
