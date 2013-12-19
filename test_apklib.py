@@ -50,12 +50,19 @@ class TestApkLib(unittest.TestCase):
         #print r
         self.assert_(r > 0)
 
+    @unittest.skip("expensive")
     def test_extcall(self):
         #os.system('python -c "import sys; print sys.path"')
         out = c("python jardumpr.py --old=%s --new=%s" % (
             one("test/apk/1/*.apk"),
             one("test/apk/2/*.apk")))
-        print out
+        #print out
+
+    def test_corrupt(self):
+        out = c("python jardumpr.py --old=%s --new=%s" % (
+            one("test/apk/1/*.apk"),
+            "test/apk/corrupt/empty.apk"))
+
 
 if __name__ == "__main__":
     unittest.main()

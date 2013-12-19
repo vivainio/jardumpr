@@ -1,6 +1,6 @@
 __author__ = 'vivainio'
 
-import os,tempfile
+import os,tempfile,pprint
 import subprocess
 
 
@@ -11,7 +11,7 @@ tempdir = tempfile.mkdtemp()
 
 def c(args):
     #print ">",args
-    out = subprocess.check_output(args)
+    out = subprocess.check_output(args, stderr=subprocess.STDOUT)
 
 
 def cat(outf, filenames):
@@ -36,6 +36,10 @@ def find(pth, endswith):
 
     return files
 
+
+wellknown = ("/smali/android", "/smali/com/google")
+
+
 class Apk:
     def __init__(self, fn):
         self.fn = os.path.abspath(fn)
@@ -47,8 +51,22 @@ class Apk:
         """
 
         tgt = tempdir + "/" + tag
-        c([apktool, "d", self.fn, tgt])
-        smalis = sorted(find(tgt + "/smali/", ".smali"))
+
+        try:
+            c([apktool, "d", self.fn, tgt])
+        except subprocess.CalledProcessError,e:
+            print "corrupt: apktool, %s" % (e.message)
+
+
+        def any_in(ss, s):
+            for el in ss:
+                if el in s:
+                    return True
+            return False
+
+
+        smalis = sorted([ent for ent in find(tgt + "/smali/", ".smali") if not any_in(wellknown, ent)])
+        #pprint.pprint(smalis)
         alls = tgt + "/all.smali"
         cat(alls, smalis)
         assert os.path.isfile(alls)
