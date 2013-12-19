@@ -4,7 +4,10 @@ import os,tempfile,pprint
 import subprocess
 
 
-apktool = "/usr/local/bin/apktool"
+#apktool = "/usr/local/bin/apktool"
+
+apktool = "apktool"
+
 
 tempdir = tempfile.mkdtemp()
 
@@ -12,8 +15,6 @@ tempdir = tempfile.mkdtemp()
 def c(args):
     #print ">",args
     out = subprocess.check_output(args, stderr=subprocess.STDOUT)
-
-
 
 
 def cat(outf, filenames):
