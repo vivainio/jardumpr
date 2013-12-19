@@ -51,7 +51,11 @@ def extract_jar(jarf):
         raise
     td = tempfile.mkdtemp()
     tempdirs.append(td)
-    zf.extractall(td)
+    try:
+        zf.extractall(td)
+    except:
+        print "corrupt: bad zip",jarf
+
     return mglob.expand("rec:" + td + "=*.class")
 
 
