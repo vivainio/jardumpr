@@ -30,13 +30,13 @@ class TestApkLib(unittest.TestCase):
     def test_create(self):
         a = apklib.Apk("test/apk/leoreader.apk")
 
-    @unittest.skip("expensive")
+    #@unittest.skip("expensive")
     def test_extract(self):
         a = apklib.Apk(one("test/apk/1/*.apk"))
         f1 = a.extract()
         print f1
 
-    @unittest.skip("expensive")
+    #@unittest.skip("expensive")
     def test_diff(self):
         a = apklib.Apk(one("test/apk/1/*.apk"))
         b = apklib.Apk(one("test/apk/2/*.apk"))
@@ -50,7 +50,7 @@ class TestApkLib(unittest.TestCase):
         #print r
         self.assert_(r > 0)
 
-    @unittest.skip("expensive")
+    #@unittest.skip("expensive")
     def test_extcall(self):
         #os.system('python -c "import sys; print sys.path"')
         out = c("python jardumpr.py --old=%s --new=%s" % (
