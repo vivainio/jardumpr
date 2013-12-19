@@ -62,7 +62,10 @@ class TestApkLib(unittest.TestCase):
         out = c("python jardumpr.py --old=%s --new=%s" % (
             one("test/apk/1/*.apk"),
             "test/apk/corrupt/empty.apk"))
-
+        print out
+        if not 'corrupt:' in out:
+            print "Wanted corrupt, got",out
+            self.assert_('corrupt:' in out)
 
 if __name__ == "__main__":
     unittest.main()
