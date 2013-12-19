@@ -3,6 +3,7 @@ import os, tempfile, zipfile, re, shutil, argparse, sys
 import mglob
 import subprocess
 import tempfile
+import apklib
 
 BINROOT = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
 
@@ -113,6 +114,15 @@ def compare_dumps(da, db):
     print "linecount:",lc
     print "per_1k:",(r/float(lc)) * 1000
 
+def compare_apk(a,b):
+    aa = apklib.Apk(a)
+    bb = apklib.Apk(b)
+    af = aa.extract("a")
+    bf = bb.extract("b")
+    compare_dumps(af, bf)
+
+
+
 def compare(a, b):
     args.raw = True
     af = tempfile.NamedTemporaryFile()
@@ -147,6 +157,9 @@ def main():
         return
 
     if args.old:
+        if args.old.endswith(".apk"):
+            compare_apk(args.old, args.new)
+            return
         compare(args.old, args.new)
         return
 

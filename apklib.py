@@ -10,16 +10,20 @@ tempdir = tempfile.mkdtemp()
 
 
 def c(args):
-    print ">",args
-    subprocess.check_call(args)
+    #print ">",args
+    out = subprocess.check_output(args)
 
 
 def cat(outf, filenames):
     with open(outf, 'w') as outfile:
         for fname in filenames:
             with open(fname) as infile:
+
                 outfile.write("# " + os.path.basename(fname) + "\n\n")
-                outfile.write(infile.read())
+                lines = infile.readlines()
+                olines = [l for l in lines if not l.lstrip().startswith(".line")]
+
+                outfile.writelines(olines)
 
 def find(pth, endswith):
     files = []
@@ -37,11 +41,15 @@ class Apk:
         self.fn = os.path.abspath(fn)
         assert os.path.isfile(fn)
 
-    def extract(self):
-        tgt = tempdir + "/1"
+    def extract(self, tag = "1"):
+        """
+        tag must be valid directory name
+        """
+
+        tgt = tempdir + "/" + tag
         c([apktool, "d", self.fn, tgt])
         smalis = sorted(find(tgt + "/smali/", ".smali"))
-        alls = tempdir + "/all.smali"
+        alls = tgt + "/all.smali"
         cat(alls, smalis)
         assert os.path.isfile(alls)
 
