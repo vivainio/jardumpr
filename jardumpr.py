@@ -3,6 +3,7 @@ import os, tempfile, zipfile, re, shutil, argparse, sys
 import mglob
 import subprocess
 import tempfile
+import apklib
 
 BINROOT = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
 
@@ -50,7 +51,11 @@ def extract_jar(jarf):
         raise
     td = tempfile.mkdtemp()
     tempdirs.append(td)
-    zf.extractall(td)
+    try:
+        zf.extractall(td)
+    except:
+        print "corrupt: bad zip",jarf
+
     return mglob.expand("rec:" + td + "=*.class")
 
 
@@ -84,8 +89,8 @@ def parseargs():
     parser = argparse.ArgumentParser()
     parser.add_argument("jarfiles", metavar="jarfile", nargs="*")
     parser.add_argument("--raw", action="store_true", help='dump Jasmin style assembly')
-    parser.add_argument("--old", type=str, help="old .jar file for comparison")
-    parser.add_argument("--new", type=str, help="new .jar file for comparison")
+    parser.add_argument("--old", type=str, help="old .jar/.apk file for comparison")
+    parser.add_argument("--new", type=str, help="new .jar/.apk file for comparison")
     parser.add_argument("--test", action="store_true", help="quick sanity test")
 
     args = parser.parse_args()
@@ -112,6 +117,15 @@ def compare_dumps(da, db):
     print "changes:",r
     print "linecount:",lc
     print "per_1k:",(r/float(lc)) * 1000
+
+def compare_apk(a,b):
+    aa = apklib.Apk(a)
+    bb = apklib.Apk(b)
+    af = aa.extract("a")
+    bf = bb.extract("b")
+    compare_dumps(af, bf)
+
+
 
 def compare(a, b):
     args.raw = True
@@ -147,6 +161,9 @@ def main():
         return
 
     if args.old:
+        if args.old.endswith(".apk"):
+            compare_apk(args.old, args.new)
+            return
         compare(args.old, args.new)
         return
 

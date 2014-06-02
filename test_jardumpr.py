@@ -4,7 +4,6 @@ from subprocess import Popen, PIPE
 
 def c(s, noerr = False):
     #print s
-
     p = Popen(s, shell=True, stdout=PIPE, stderr=PIPE)
     o,e = p.stdout.read(), p.stderr.read()
     if e and not noerr:
@@ -12,6 +11,13 @@ def c(s, noerr = False):
         print e
         print "//"
     return o
+
+
+def one(gpat):
+    fs = glob.glob(gpat)
+    assert len(fs) == 1
+    return fs[0]
+
 
 class TestJardumpr(unittest.TestCase):
     def setUp(self, *args, **kwargs):
@@ -59,12 +65,25 @@ class TestJardumpr(unittest.TestCase):
     def test_compare_corrupt(self):
         for f in glob.glob("test/Corrupt/*"):
 
-
             out = c("python jardumpr.py --old=test/Original/LCDUITest.jar --new=%s" % f, noerr=True)
             if not 'corrupt:' in out:
                 print "Problematic output:",out
             self.assert_('corrupt:' in out)
             out = c("python jardumpr.py --old=%s --new=test/MinorChange/LCDUITest.jar" % f, noerr=True)
+
+
+    def test_compare_apk(self):
+        out = c("python jardumpr.py --old=%s --new=%s" % (
+            one("test/apk/1/*.apk"),
+            one("test/apk/2/*.apk")))
+        [self.assert_(s in out) for s in ['changes', 'linecount', 'per_1k']]
+
+    def test_compare_same_apk(self):
+        out = c("python jardumpr.py --old=%s --new=%s" % (
+            one("test/apk/1/*.apk"),
+            one("test/apk/1/*.apk")))
+        self.assert_('changes: 0' in out)
+
 
 
 if __name__ == "__main__":
