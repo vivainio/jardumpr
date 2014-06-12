@@ -125,17 +125,18 @@ def compare_apk(a,b):
     bf = bb.extract("b")
     compare_dumps(af, bf)
 
+    apklib.delete_temp_files()
 
 
 def compare(a, b):
     args.raw = True
-    af = tempfile.NamedTemporaryFile()
+    af = tempfile.NamedTemporaryFile(delete=True)
     try:
         dump_jar_data(a, af)
     except Exception,e:
         print "corrupt: old, %s, %s" % (a, e.message)
         return
-    bf = tempfile.NamedTemporaryFile()
+    bf = tempfile.NamedTemporaryFile(delete=True)
 
     try:
         dump_jar_data(b, bf)

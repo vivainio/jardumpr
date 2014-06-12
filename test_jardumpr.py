@@ -77,6 +77,8 @@ class TestJardumpr(unittest.TestCase):
             one("test/apk/1/*.apk"),
             one("test/apk/2/*.apk")))
         [self.assert_(s in out) for s in ['changes', 'linecount', 'per_1k']]
+        #print out
+
 
     def test_compare_same_apk(self):
         out = c("python jardumpr.py --old=%s --new=%s" % (

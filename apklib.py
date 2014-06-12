@@ -2,7 +2,7 @@ __author__ = 'vivainio'
 
 import os,tempfile,pprint
 import subprocess
-
+import shutil
 
 #apktool = "/usr/local/bin/apktool"
 
@@ -39,6 +39,9 @@ def find(pth, endswith):
 
     return files
 
+
+def delete_temp_files():
+    shutil.rmtree(tempdir)
 
 wellknown = ("/smali/android", "/smali/com/google")
 
